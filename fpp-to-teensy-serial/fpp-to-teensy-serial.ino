@@ -31,7 +31,7 @@
 // See the LED Address & Different Strip Lengths section of https://www.pjrc.com/teensy/td_libs_OctoWS2811.html for more detail.
 
 // When you change the MAX_PIXELS_PER_STRIP, be sure to update Vixen/xLight/FPP/etc with the new channel/output count of MAX_PIXELS_PER_STRIP * 8 * 3
-#define MAX_PIXELS_PER_STRIP 517
+#define MAX_PIXELS_PER_STRIP 150
 
 // Within the sequencing software such as Vixen or Falcon Pi Player (FPP), the serial connection should be configured for MAX_PIXELS_PER_STRIP * 8 * 3 outputs and to send a header of <>
 // 8 for the number of strips and 3 for each of the R, G, and B channels. The mapping of the channels to align with each of the 8 output the OctoWS2811 library should be within the sequencing software.
@@ -54,12 +54,24 @@ DMAMEM byte drawingMemory[MAX_PIXELS_PER_STRIP * 8 * 3] __attribute__((aligned(3
 char megaBuffer[MAX_PIXELS_PER_STRIP * 8 * 3] __attribute__((aligned(2048)));
 
 OctoWS2811 leds(MAX_PIXELS_PER_STRIP, displayMemory, drawingMemory, WS2811_RGB | WS2813_800kHz);
+int PixelCount = MAX_PIXELS_PER_STRIP * 8 * 3;
+
+void blueFlash() {
+  leds.begin();
+  for (int i=0;i<PixelCount;i++) {
+    leds.setPixel(i, 0, 0, 200*.5);
+  }
+  leds.show();  
+  delay (5000);
+  for (int i=0;i<PixelCount;i++) {
+    leds.setPixel(i, 0, 0, 0);
+  }
+  leds.show(); 
+}
 
 void setup() {
   Serial.begin(115200);
-
-  leds.begin();
-  leds.show();
+  blueFlash();
 
   // Leave led on by default, easier to see the Teensy is running. Ideally, should always be on. If it goes on and off, it indicates an issue. See bottom of the code for more info.
   pinMode(LED_BUILTIN, OUTPUT);
